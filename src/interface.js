@@ -19,6 +19,7 @@ function xdateToData(xdate) {
 }
 
 function parseDate(d) {
+
   if (!d) {
     return;
   } else if (d.timestamp) { // conventional data timestamp

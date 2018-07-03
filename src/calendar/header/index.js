@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { ActivityIndicator } from 'react-native';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Image, LayoutAnimation } from 'react-native';
 import XDate from 'xdate';
 import PropTypes from 'prop-types';
 import styleConstructor from './style';
@@ -28,6 +28,7 @@ class CalendarHeader extends Component {
     this.substractMonth = this.substractMonth.bind(this);
     this.onPressLeft = this.onPressLeft.bind(this);
     this.onPressRight = this.onPressRight.bind(this);
+    this.onTitlePress = this.onTitlePress.bind(this);
   }
 
   addMonth() {
@@ -68,6 +69,11 @@ class CalendarHeader extends Component {
       return onPressArrowRight(this.addMonth);
     }
     return this.addMonth();
+  }
+
+  onTitlePress() {
+    this.props.onTitlePress()
+    //this.forceUpdate() //title string change
   }
 
   render() {
@@ -113,8 +119,15 @@ class CalendarHeader extends Component {
         <View style={this.style.header}>
           {leftArrow}
           <View style={{ flexDirection: 'row' }}>
-            <Text allowFontScaling={false} style={this.style.monthText} accessibilityTraits='header'>
-              {this.props.month.toString(this.props.monthFormat ? this.props.monthFormat : 'MMMM yyyy')}
+            <Text
+              onPress={this.onTitlePress}
+              allowFontScaling={false}
+              style={this.style.monthText}
+              accessibilityTraits='header'
+            >
+              { this.props.isYearViewActive ? 'Select Year' : 
+                  this.props.month.toString('MMM yyyy')
+              }
             </Text>
             {indicator}
           </View>

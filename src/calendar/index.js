@@ -1,7 +1,10 @@
 import React, {Component} from 'react';
 import {
   View,
-  ViewPropTypes
+  ViewPropTypes,
+  TouchableOpacity,
+  Text,
+  LayoutAnimation
 } from 'react-native';
 import PropTypes from 'prop-types';
 
@@ -16,6 +19,7 @@ import MultiPeriodDay from './day/multi-period';
 import SingleDay from './day/custom';
 import CalendarHeader from './header';
 import shouldComponentUpdate from './updater';
+import YearModal from './year-modal';
 
 //Fallback when RN version is < 0.44
 const viewPropTypes = ViewPropTypes || View.propTypes;
@@ -88,18 +92,23 @@ class Calendar extends Component {
       currentMonth = XDate();
     }
     this.state = {
-      currentMonth
+      currentMonth,
+      isYearViewActive: false,
+      yearPageIndex: Math.ceil(this.currentYear() / 35)
     };
-
     this.updateMonth = this.updateMonth.bind(this);
     this.addMonth = this.addMonth.bind(this);
     this.pressDay = this.pressDay.bind(this);
     this.longPressDay = this.longPressDay.bind(this);
     this.shouldComponentUpdate = shouldComponentUpdate;
+    this.swapView = this.swapView.bind(this);
+    this.nextYearPage = this.nextYearPage.bind(this);
+    this.prevYearPage = this.prevYearPage.bind(this);
+    this.pressYear = this.pressYear.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
-    const current= parseDate(nextProps.current);
+    const current = parseDate(nextProps.current);
     if (current && current.toString('yyyy MM') !== this.state.currentMonth.toString('yyyy MM')) {
       this.setState({
         currentMonth: current.clone()
@@ -126,6 +135,26 @@ class Calendar extends Component {
     });
   }
 
+  animation() {
+    const CustomLayoutSpring = {
+      duration: 400,
+      create: {
+        type: LayoutAnimation.Types.spring,
+        property: LayoutAnimation.Properties.scaleXY,
+        springDamping: 0.7,
+      },
+      update: {
+        type: LayoutAnimation.Types.spring,
+        springDamping: 0.7,
+      },
+    };
+    LayoutAnimation.configureNext(CustomLayoutSpring)
+  }
+
+  currentYear() {
+    return this.props.current.getFullYear()
+  }
+
   _handleDayInteraction(date, interaction) {
     const day = parseDate(date);
     const minDate = parseDate(this.props.minDate);
@@ -145,12 +174,32 @@ class Calendar extends Component {
     this._handleDayInteraction(date, this.props.onDayPress);
   }
 
+  pressYear(year) {
+    this.setState({
+      currentMonth: XDate(this.state.currentMonth.toString(`${year}-MM-dd`))
+    })
+    this.swapView()
+
+  }
+
   longPressDay(date) {
     this._handleDayInteraction(date, this.props.onDayLongPress);
   }
 
   addMonth(count) {
     this.updateMonth(this.state.currentMonth.clone().addMonths(count, true));
+  }
+
+  nextYearPage() {
+    if (this.state.yearPageIndex < 60) {
+      this.setState({yearPageIndex: this.state.yearPageIndex + 1})
+    }
+  }
+
+  prevYearPage() {
+    if (this.state.yearPageIndex > 55 ) {
+      this.setState({yearPageIndex: this.state.yearPageIndex - 1})
+    }
   }
 
   renderDay(day, id) {
@@ -163,7 +212,7 @@ class Calendar extends Component {
       state = 'disabled';
     } else if (!dateutils.sameMonth(day, this.state.currentMonth)) {
       state = 'disabled';
-    } else if (dateutils.sameDate(day, XDate())) {
+    } else if (dateutils.sameDate(day, XDate(this.props.current))) {
       state = 'today';
     }
     let dayComp;
@@ -224,6 +273,7 @@ class Calendar extends Component {
     }
   }
 
+
   renderWeekNumber (weekNumber) {
     return <Day key={`week-${weekNumber}`} theme={this.props.theme} marking={{disableTouchEvent: true}} state='disabled'>{weekNumber}</Day>;
   }
@@ -241,12 +291,44 @@ class Calendar extends Component {
     return (<View style={this.style.week} key={id}>{week}</View>);
   }
 
+
+
+  swapView() {
+    this.setState({isYearViewActive: !this.state.isYearViewActive});
+    this.animation()
+  }
+
+  renderYears(years) {
+    yearList = []
+    for(let i = ((this.state.yearPageIndex * 35) - 34); i < ((this.state.yearPageIndex * 35) + 1); i++) {
+      const textStyle = [this.style.text, this.currentYear() === i ? {color: '#00adf5'} : null]
+
+      yearList.push(
+        <TouchableOpacity
+          key={`${i} - year`}
+          style={this.style.year}
+          onPress={() => {
+            this.pressYear(i)
+          }}
+        > 
+          <Text style={textStyle}>{i}</Text>
+        </TouchableOpacity>
+      )
+    }
+    return yearList
+  }
+
+
   render() {
+    const years = [1,2,3,4,5,6,7,8,9,10]
     const days = dateutils.page(this.state.currentMonth, this.props.firstDay);
     const weeks = [];
+    const groupedYears = this.renderYears(years)
+
     while (days.length) {
       weeks.push(this.renderWeek(days.splice(0, 7), weeks.length));
     }
+
     let indicator;
     const current = parseDate(this.props.current);
     if (current) {
@@ -256,9 +338,13 @@ class Calendar extends Component {
         indicator = true;
       }
     }
+
     return (
       <View style={[this.style.container, this.props.style]}>
+
         <CalendarHeader
+          onTitlePress={this.swapView}
+          isYearViewActive={this.state.isYearViewActive}
           theme={this.props.theme}
           hideArrows={this.props.hideArrows}
           month={this.state.currentMonth}
@@ -266,13 +352,17 @@ class Calendar extends Component {
           showIndicator={indicator}
           firstDay={this.props.firstDay}
           renderArrow={this.props.renderArrow}
-          monthFormat={this.props.monthFormat}
-          hideDayNames={this.props.hideDayNames}
+          hideDayNames={this.state.isYearViewActive || this.props.hideDayNames}
           weekNumbers={this.props.showWeekNumbers}
-          onPressArrowLeft={this.props.onPressArrowLeft}
-          onPressArrowRight={this.props.onPressArrowRight}
+          onPressArrowLeft={this.state.isYearViewActive ? this.prevYearPage : this.props.onPressArrowLeft}
+          onPressArrowRight={this.state.isYearViewActive ? this.nextYearPage : this.props.onPressArrowRight}
         />
+        {this.state.isYearViewActive ? 
+        <View style={this.style.yearView}>{groupedYears}</View>
+        
+        : 
         <View style={this.style.monthView}>{weeks}</View>
+        }
       </View>);
   }
 }

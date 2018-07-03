@@ -40,12 +40,11 @@ export default function shouldComponentUpdate(nextProps, nextState) {
     return prev;
   }, shouldUpdate);
 
-  if (nextState.currentMonth !== this.state.currentMonth) {
+  if (nextState !== this.state) {
     shouldUpdate = {
       update: true,
       field: 'current'
     };
   }
-  //console.log(shouldUpdate.field, shouldUpdate.update);
   return shouldUpdate.update;
 }
