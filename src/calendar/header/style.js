@@ -17,27 +17,27 @@ export default function(theme={}) {
       fontSize: appStyle.textMonthFontSize,
       fontFamily: appStyle.textMonthFontFamily,
       fontWeight: appStyle.textMonthFontWeight,
-      color: appStyle.monthTextColor,
+      color: '#494949',
       margin: 10
     },
     arrow: {
       padding: 10
     },
-    arrowImage: {
-      ...Platform.select({
-        ios: {
-          tintColor: appStyle.arrowColor
-        },
-        android: {
-          tintColor: appStyle.arrowColor
-        }
-      })
+    
+    leftArrow: {
+      transform: [{rotate: '90deg'}]
     },
+
+    rightArrow: {
+      transform: [{rotate: '-90deg'}]
+    },
+    
     week: {
       marginTop: 7,
       flexDirection: 'row',
       justifyContent: 'space-around'
     },
+
     dayHeader: {
       marginTop: 2,
       marginBottom: 7,
@@ -46,6 +46,12 @@ export default function(theme={}) {
       fontSize: appStyle.textDayHeaderFontSize,
       fontFamily: appStyle.textDayHeaderFontFamily,
       color: appStyle.textSectionTitleColor
+    },
+    titleView: {
+      paddingHorizontal: 25,
+      paddingVertical: 5,
+      flexDirection: 'row',
+      alignItems: 'center'
     },
     ...(theme[STYLESHEET_ID] || {})
   });

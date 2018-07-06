@@ -9,7 +9,8 @@ export default function styleConstructor(theme={}) {
     base: {
       width: 32,
       height: 32,
-      alignItems: 'center'
+      alignItems: 'center',
+      borderRadius: 16
     },
     text: {
       marginTop: Platform.OS === 'android' ? 4 : 6,
@@ -23,11 +24,12 @@ export default function styleConstructor(theme={}) {
       marginTop: Platform.OS === 'android' ? 4 : 6
     },
     selected: {
-      backgroundColor: appStyle.selectedDayBackgroundColor,
+      backgroundColor: '#FB6964',
       borderRadius: 16
     },
     todayText: {
-      color: appStyle.todayTextColor
+      color: '#ffffff',
+      fontWeight: 'bold'
     },
     selectedText: {
       color: appStyle.selectedDayTextColor

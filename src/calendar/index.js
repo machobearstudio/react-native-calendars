@@ -94,7 +94,8 @@ class Calendar extends Component {
     this.state = {
       currentMonth,
       isYearViewActive: false,
-      yearPageIndex: Math.ceil(this.currentYear() / 35)
+      yearPageIndex: Math.ceil(this.currentYear() / 35),
+      selectedYear: this.currentYear()
     };
     this.updateMonth = this.updateMonth.bind(this);
     this.addMonth = this.addMonth.bind(this);
@@ -291,8 +292,6 @@ class Calendar extends Component {
     return (<View style={this.style.week} key={id}>{week}</View>);
   }
 
-
-
   swapView() {
     this.setState({isYearViewActive: !this.state.isYearViewActive});
     this.animation()
@@ -300,8 +299,9 @@ class Calendar extends Component {
 
   renderYears(years) {
     yearList = []
+
     for(let i = ((this.state.yearPageIndex * 35) - 34); i < ((this.state.yearPageIndex * 35) + 1); i++) {
-      const textStyle = [this.style.text, this.currentYear() === i ? {color: '#00adf5'} : null]
+      const textStyle = [this.style.text, this.state.selectedYear === i ? {color: '#FB6964', fontWeight: 'bold'} : null]
 
       yearList.push(
         <TouchableOpacity
@@ -309,6 +309,7 @@ class Calendar extends Component {
           style={this.style.year}
           onPress={() => {
             this.pressYear(i)
+            this.setState({selectedYear: i})
           }}
         > 
           <Text style={textStyle}>{i}</Text>
@@ -317,7 +318,6 @@ class Calendar extends Component {
     }
     return yearList
   }
-
 
   render() {
     const years = [1,2,3,4,5,6,7,8,9,10]

@@ -90,8 +90,8 @@ class CalendarHeader extends Component {
           {this.props.renderArrow
             ? this.props.renderArrow('left')
             : <Image
-                source={require('../img/previous.png')}
-                style={this.style.arrowImage}
+                source={require('../img/arrow.png')}
+                style={this.style.leftArrow}
               />}
         </TouchableOpacity>
       );
@@ -104,8 +104,8 @@ class CalendarHeader extends Component {
           {this.props.renderArrow
             ? this.props.renderArrow('right')
             : <Image
-                source={require('../img/next.png')}
-                style={this.style.arrowImage}
+                source={require('../img/arrow.png')}
+                style={this.style.rightArrow}
               />}
         </TouchableOpacity>
       );
@@ -118,9 +118,10 @@ class CalendarHeader extends Component {
       <View>
         <View style={this.style.header}>
           {leftArrow}
-          <View style={{ flexDirection: 'row' }}>
+          <TouchableOpacity
+            onPress={this.onTitlePress}
+            style={this.style.titleView}>
             <Text
-              onPress={this.onTitlePress}
               allowFontScaling={false}
               style={this.style.monthText}
               accessibilityTraits='header'
@@ -129,8 +130,12 @@ class CalendarHeader extends Component {
                   this.props.month.toString('MMM yyyy')
               }
             </Text>
+            <Image
+              source={require('../img/arrow.png')}
+              style={this.props.isYearViewActive ? {transform: [{rotate: '180deg'}]} : null}
+            />
             {indicator}
-          </View>
+          </TouchableOpacity>
           {rightArrow}
         </View>
         {
