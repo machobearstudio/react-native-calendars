@@ -70,6 +70,12 @@ class Day extends Component {
       textStyle.push(this.style.selectedText);
     } else if (isDisabled) {
       textStyle.push(this.style.disabledText);
+      console.log('hit ', this.props.state)
+        if (this.props.sameDay) {
+          console.log('today')
+          textStyle.push(this.style.todayText);
+          containerStyle.push({backgroundColor: '#FB6964', opacity: 0.5});
+        }
     } else if (this.props.state === 'today') {
       textStyle.push(this.style.todayText);
       containerStyle.push({backgroundColor: '#FB6964'});

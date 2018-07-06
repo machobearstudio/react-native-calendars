@@ -235,6 +235,7 @@ class Calendar extends Component {
           onLongPress={this.longPressDay}
           date={xdateToData(day)}
           marking={this.getDateMarking(day)}
+          sameDay={dateutils.sameDate(day, XDate(this.props.current))}
         >
           {date}
         </DayComp>
